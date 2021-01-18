@@ -2,14 +2,15 @@ import asyncio
 from typing import Any, Dict, Callable, List
 
 from postiel_helpers.action.post.action import PostAction
+from postiel_helpers.message_broker.service_consumer import ServiceConsumer
 from postiel_helpers.message_broker.interface import MessageBrokerInterface
 from postiel_helpers.model.field import field
 from postiel_helpers.services.service import Service
-from test.common import MESSAGE
+from test.common import MESSAGE, POST_ACTION
 
 
 class BrokerMock(MessageBrokerInterface):
-    def initialize(cls, config: Dict[str, Any], consumers_functions: Dict[str, Callable] = field(default_factory=dict)):
+    def initialize(cls, config: Dict[str, Any], service_consumers: Dict[str, Callable] = field(default_factory=dict)):
         pass
 
 
@@ -66,9 +67,8 @@ def test_service_rabbitmq(
         def __init__(self):
             super().__init__()
             self.actions: List[PostAction] = []
-            self._consumer_functions = {
-                '_post_consumer': self._post_consumer
-            }
+            self._consumer_functions = {'_post_consumer': ServiceConsumer(
+                func=self._post_consumer, action_type=PostAction)}
 
         async def _start(self) -> None:
             await self._brokers["RabbitMQ"].send_message(MESSAGE)
@@ -77,12 +77,9 @@ def test_service_rabbitmq(
         async def _get_config_data(self) -> Dict[str, Any]:
             return config
 
-        async def _post_consumer(self, post_action: bytes):
-            raise deberia recibir un post no un bytes
-            action = PostAction.deserialize(post_action_bytes)
-
+        async def _post_consumer(self, action: PostAction):
             self.actions.append(action)
 
     service = MockService()
     service.run()
-    service
+    assert service.actions == [POST_ACTION]

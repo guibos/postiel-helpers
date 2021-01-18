@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Union, Optional
+from typing import Optional, Dict, Any
 
 from postiel_helpers.action.action import Action
 from postiel_helpers.model.data import DataModel
@@ -7,8 +7,7 @@ from postiel_helpers.model.data import DataModel
 
 class Message(DataModel):
     action: Action
-    routing_key: str
-    exchange_name: str
+    routing_config: Dict[str, Any]
     publish_datetime: Optional[datetime] = None
 
 

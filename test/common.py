@@ -54,7 +54,8 @@ POST_ACTION = PostAction(
 
 MESSAGE = Message(
     action=POST_ACTION,
-    routing_key="test_queue",
-    exchange_name="test_exchange",
+    routing_config={
+        "routing_key": "test_queue",
+        "exchange_name": "test_exchange"}
 )
 
